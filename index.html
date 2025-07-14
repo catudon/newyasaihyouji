@@ -1,0 +1,140 @@
+<!-- index.html（野菜一覧・モーダル付き） -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>農家さんの野菜一覧</title>
+  <style>
+    body { font-family: sans-serif; background: #f0fff4; padding: 20px; }
+    .veggie-card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px;
+      background: #fff;
+      border-radius: 10px;
+    }
+    .rare { color: red; font-weight: bold; }
+    button { margin-top: 5px; }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.6);
+    }
+    .modal-content {
+      background: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      width: 80%; max-width: 400px;
+      border-radius: 10px;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    #veggie-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 20px;
+    background-image: url("images/market_bg.jpg");
+    background-size: cover;
+    background-position: center;
+    border-radius: 16px;
+    }
+    .veggie-card {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative; /* ← 追加！ */
+    overflow: hidden; 
+    }
+    .veggie-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* ← 黒っぽい半透明 */
+    z-index: 0;
+    border-radius: 12px;
+    }
+    .veggie-card * {
+      position: relative;
+      z-index: 1;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>農家さんの野菜一覧🌽</h1>
+  <div id="veggie-list"></div>
+
+  <!-- モーダル -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3 id="modal-title"></h3>
+      <p id="modal-recipe"></p>
+      <div id="modal-link"></div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+      const favorites = [];
+      const listDiv = document.getElementById("veggie-list");
+
+      veggies.forEach((v, i) => {
+        const farmer = farmers.find(f => f.id === v.farmerId);
+        const card = document.createElement("div");
+        card.className = "veggie-card";
+        card.style.backgroundImage = `url('${v.bgImage}')`;
+        card.style.backgroundSize = "cover";
+        card.style.backgroundPosition = "center";
+        card.style.color = "#fff"; // テキストが見えるように
+
+        card.innerHTML = `
+          <h3>
+            <a href="farmer_${farmer.name}.html" style="color=#fff">${farmer.name}</a>の${v.name}
+            ${v.rare ? '<span class="rare">[珍]</span>' : ''}
+          </h3>
+          <button onclick="showDetails(${i})">詳細を見る</button>
+          <button onclick="addFavorite('${farmer.name}')">お気に入り登録</button>
+        `;
+
+        listDiv.appendChild(card);
+      });
+
+      function showDetails(index) {
+        const v = veggies[index];
+        const farmer = farmers.find(f => f.id === v.farmerId);
+        document.getElementById("modal-title").textContent = `${farmer.name}の${v.name}`;
+        document.getElementById("modal-recipe").textContent = `レシピ：${v.recipe}`;
+        document.getElementById("modal-link").innerHTML =
+          `<a href="farmer_${farmer.name}.html">→ ${farmer.name}のページへ</a>`;
+        document.getElementById("modal").style.display = "block";
+      }
+
+      function closeModal() {
+        document.getElementById("modal").style.display = "none";
+      }
+
+      function addFavorite(farmerName) {
+        if (!favorites.includes(farmerName)) {
+          favorites.push(farmerName);
+          alert(`${farmerName}をお気に入りに登録したよ〜☆`);
+        } else {
+          alert(`${farmerName}はもうお気に入りに入ってるよ〜♪`);
+        }
+      }
+  </script>
+</body>
+</html>
